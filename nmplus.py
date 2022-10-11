@@ -21,7 +21,7 @@ def main():
     print_logo()
     
     while True:
-        banner("Main Menu", main_color, console)
+        banner("Main Menu")
         console.print("""
 1. List all connections
 2. List all devices
@@ -52,7 +52,7 @@ def main():
             break
 
 def list_connections():
-    console.print("List of connections", style=main_color)
+    banner("List of connections")
     table = Table(show_header=True, header_style=main_color, box=box.MINIMAL)
     table.add_column("Name", style=main_color)
     table.add_column("UUID", style=main_color)
@@ -68,7 +68,7 @@ def list_connections():
 
 
 def list_devices():
-    banner("List of devices", main_color, console)
+    banner("List of devices")
     table = Table(show_header=True, header_style=main_color, box=box.MINIMAL)
     table.add_column("Name", style=main_color)
     table.add_column("Type", style=main_color)
@@ -95,19 +95,19 @@ def list_devices():
 
 
 def list_access_points():
-    banner("List of access points", main_color, console)
+    banner("List of access points")
     output = subprocess.run(["nmcli", "device", "wifi", "list"], capture_output=True, text=True)
     console.print(output.stdout, justify="center")
 
 
 def list_wireless_networks():
-    banner("List of wireless networks", main_color, console)
+    banner("List of wireless networks")
     output = subprocess.run(["nmcli", "device", "wifi", "list"], capture_output=True, text=True)
     console.print(output.stdout, justify="center")
 
 
 def connect_to_network():
-    banner("Connect to a network", main_color, console)
+    banner("Connect to a network")
     ssid = Prompt.ask("Please enter the SSID of the network you want to connect to")
     password = Prompt.ask("Please enter the password for the network", password=True)
     output = subprocess.run(["nmcli", "device", "wifi", "connect", ssid, "password", password], capture_output=True, text=True)
@@ -115,12 +115,12 @@ def connect_to_network():
 
 
 def disconnect_from_network():
-    banner("Disconnect from a network", main_color, console)
+    banner("Disconnect from a network")
     ssid = Prompt.ask("Please enter the SSID of the network you want to disconnect from")
     output = subprocess.run(["nmcli", "device", "wifi", "disconnect", ssid], capture_output=True, text=True)
     console.print(output.stdout, justify="center")
 
-def banner(msg, color, console) -> None:
+def banner(msg, color="blue") -> None:
     term_width = get_terminal_width()
 
     console.print("─" * term_width, style=color)
@@ -134,19 +134,16 @@ def get_terminal_width() -> int:
     except OSError:
         width = 80
 
-    if system().lower() == "windows":
-        width -= 1
-
     return width
 
 
 def print_logo() -> None:
     width = get_terminal_width()
-    height = 5
+    height = 8
     logo = """
                  8888
  888888888888888888888      888
-8888888888888888888888[b]NMCLI+[/]888
+8888888888888888888888NMCLI+888
  888888888888888888888      888
                  8888
 """
