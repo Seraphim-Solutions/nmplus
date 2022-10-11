@@ -92,8 +92,36 @@ def list_devices():
 
 def list_access_points():
     banner("List of access points")
-    output = subprocess.run(["nmcli", "device", "wifi", "list"], capture_output=True, text=True)
-    console.print(output.stdout, justify="center")
+    output = subprocess.run(["nmcli", "-t", "-f", "bssid,ssid,mode,chan,rate,signal,bars,security", "device", "wifi", "list"], capture_output=True, text=True)
+
+    table = Table(show_header=True, header_style=main_color, box=box.MINIMAL, leading=1)
+
+    table.add_column("BSSID", style=main_color)
+    table.add_column("SSID", style=main_color)
+    table.add_column("Mode", style=main_color)
+    table.add_column("Channel", style=main_color)
+    table.add_column("Rate", style=main_color)
+    table.add_column("Signal", style=main_color)
+    table.add_column("Bars", style=main_color)
+    table.add_column("Security", style=main_color)
+
+    for line in output.stdout.splitlines():
+        line = re.sub(r'\\', '', line)
+        b1, b2, b3, b4, b5, b6, ssid, mode, chan, rate, signal, bars, security = line.split(":")
+        bssid = f"{b1}:{b2}:{b3}:{b4}:{b5}:{b6}"
+
+        if bars == "▂▄▆█":
+            bars_style = "green"
+        elif bars == "▂▄▆_":
+            bars_style = "yellow"
+        elif bars == "▂▄__":
+            bars_style = "gold3"
+        elif bars == "▂___":
+            bars_style = "red"
+
+        table.add_row(bssid, ssid, mode, chan, rate, signal, bars, security, style=bars_style)
+
+    console.print(table, justify="center")
 
 
 def connect_to_network():
