@@ -141,11 +141,11 @@ def print_logo() -> None:
     width = get_terminal_width()
     height = 8
     logo = """
-                 8888
+       8888
  888888888888888888888      888
 8888888888888888888888NMCLI+888
  888888888888888888888      888
-                 8888
+       8888
 """
 
     panel = Panel(
