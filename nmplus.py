@@ -85,8 +85,8 @@ def list_devices():
         driver = lines[y + 3]
         hwaddr = lines[y + 4]
         table.add_row(name, _type, state, driver, hwaddr)
-        y += x
-        x *= x 
+        y += 6
+        x += 6
 
     console.print(table, justify="center")
 
