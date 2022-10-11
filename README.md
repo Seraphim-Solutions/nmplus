@@ -1,2 +1,2 @@
 # nmplus
-Python wrapper for nmcli using Rich
+Python CLI for nmcli using Rich
