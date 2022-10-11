@@ -4,6 +4,8 @@ from rich.table import Table
 from rich import box
 from rich.prompt import Prompt
 from rich.text import Text
+from rich.align import Align
+from rich.panel import Panel
 
 import math
 from os import get_terminal_size
@@ -16,10 +18,8 @@ main_color = "bold blue"
 
 
 def main():
-    console.print("Network Manager+ CLI", style=main_color, justify="center")
-    console.print("Version 0.1", style=main_color, justify="center")
-    console.print("Author: DanniSec", style=main_color, justify="center")
-
+    print_logo()
+    
     while True:
         banner("Main Menu", main_color, console)
         console.print("""
@@ -139,6 +139,29 @@ def get_terminal_width() -> int:
 
     return width
 
+
+def print_logo() -> None:
+    width = get_terminal_width()
+    height = 5
+    logo = """
+                 8888
+ 888888888888888888888      888
+8888888888888888888888[b]NMCLI+[/]888
+ 888888888888888888888      888
+                 8888
+"""
+
+    panel = Panel(
+        Aling(
+            Text(logo, justify="center", style=main_color),
+            vertical="middle",
+            align="center"
+        ),
+        width=width,
+        height=height,
+        subtitle="[ www.seraphim-solutions.com ]",
+    )
+    console.print(panel)
 
 if __name__ == "__main__":
     main()
