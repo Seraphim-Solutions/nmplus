@@ -11,7 +11,6 @@ import math
 from os import get_terminal_size
 import subprocess
 import re
-from platform import system
 
 console = Console()
 main_color = "bold blue"
@@ -73,17 +72,17 @@ def list_devices():
     table.add_column("Driver", style=main_color)
     table.add_column("HW Address", style=main_color)
 
-    output = subprocess.run(["nmcli", "-g", "GENERAL.DEVICE,GENERAL.TYPE,GENERAL.STATUS,GENERAL.DRIVER,GENERAL.HWADDR", "device", "show"], capture_output=True, text=True)
+    output = subprocess.run(["nmcli", "-g", "GENERAL.DEVICE,GENERAL.TYPE,GENERAL.STATE,GENERAL.DRIVER,GENERAL.HWADDR", "device", "show"], capture_output=True, text=True)
     
     y, x = 0, 6
     lines = output.stdout.splitlines()
     length = len(lines) / 6
-    for _device in range(math.ceil(length)):
+    for _ in range(math.ceil(length)):
         name = lines[y]
         _type = lines[y + 1]
         state = lines[y + 2]
         driver = lines[y + 3]
-        hwaddr = lines[y + 4]
+        hwaddr = re.sub(r'\\', '', lines[y + 4])
         table.add_row(name, _type, state, driver, hwaddr)
         y += 6
         x += 6
