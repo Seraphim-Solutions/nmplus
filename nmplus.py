@@ -5,6 +5,7 @@ from rich import box
 from rich.prompt import Prompt
 
 import subprocess
+import re
 
 console = Console()
 main_color = "bold blue"
@@ -78,39 +79,13 @@ def list_devices():
 
 
 def list_access_points():
-    console.print("List of access points", style=main_color)
-    table = Table(show_header=True, header_style=main_color, box=box.SQUARE)
-    table.add_column("SSID", style=main_color)
-    table.add_column("BSSID", style=main_color)
-    table.add_column("Mode", style=main_color)
-    table.add_column("Frequency", style=main_color)
-    table.add_column("Signal", style=main_color)
-    table.add_column("Security", style=main_color)
-
-    output = subprocess.run(["nmcli", "-t", "-f", "ssid,bssid,mode,freq,signal,security", "device", "wifi", "list"], capture_output=True, text=True)
-    for line in output.stdout.splitlines():
-        ssid, bssid, mode, freq, signal, security = line.split(":")
-        table.add_row(ssid, bssid, mode, freq, signal, security)
-
-    console.print(table)
+    output = subprocess.run(["nmcli", "device", "wifi", "list"], capture_output=True, text=True)
+    console.print(output.stdout)
 
 
 def list_wireless_networks():
-    console.print("List of wireless networks", style=main_color)
-    table = Table(show_header=True, header_style=main_color, box=box.SQUARE)
-    table.add_column("SSID", style=main_color)
-    table.add_column("BSSID", style=main_color)
-    table.add_column("Mode", style=main_color)
-    table.add_column("Frequency", style=main_color)
-    table.add_column("Signal", style=main_color)
-    table.add_column("Security", style=main_color)
-
-    output = subprocess.run(["nmcli", "-t", "-f", "ssid,bssid,mode,freq,signal,security", "device", "wifi", "list"], capture_output=True, text=True)
-    for line in output.stdout.splitlines():
-        ssid, bssid, mode, freq, signal, security = line.split(":")
-        table.add_row(ssid, bssid, mode, freq, signal, security)
-
-    console.print(table)
+    output = subprocess.run(["nmcli", "device", "wifi", "list"], capture_output=True, text=True)
+    console.print(output.stdout)
 
 
 def connect_to_network():
