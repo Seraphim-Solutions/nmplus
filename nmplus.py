@@ -26,14 +26,13 @@ def main():
 1. List all connections
 2. List all devices
 3. List all access points
-4. List all wireless networks
-5. Connect to a network
-6. Disconnect from a network
-7. Exit
+4. Connect to a network
+5. Disconnect from a network
+6. Exit
 """, justify="center")
         console.print("", style=main_color)
 
-        choice = Prompt.ask("Please choose an option", choices=["1", "2", "3", "4", "5", "6", "7"])
+        choice = Prompt.ask("Please choose an option", choices=["1", "2", "3", "4", "5", "6"])
 
         if choice == "1":
             list_connections()
@@ -42,12 +41,10 @@ def main():
         elif choice == "3":
             list_access_points()
         elif choice == "4":
-            list_wireless_networks()
-        elif choice == "5":
             connect_to_network()
-        elif choice == "6":
+        elif choice == "5":
             disconnect_from_network()
-        elif choice == "7":
+        elif choice == "6":
             console.print("Goodbye!", style=main_color)
             break
 
@@ -96,12 +93,6 @@ def list_devices():
 
 def list_access_points():
     banner("List of access points")
-    output = subprocess.run(["nmcli", "device", "wifi", "list"], capture_output=True, text=True)
-    console.print(output.stdout, justify="center")
-
-
-def list_wireless_networks():
-    banner("List of wireless networks")
     output = subprocess.run(["nmcli", "device", "wifi", "list"], capture_output=True, text=True)
     console.print(output.stdout, justify="center")
 
