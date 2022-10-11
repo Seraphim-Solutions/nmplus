@@ -152,7 +152,7 @@ def print_logo() -> None:
 """
 
     panel = Panel(
-        Aling(
+        Align(
             Text(logo, justify="center", style=main_color),
             vertical="middle",
             align="center"
