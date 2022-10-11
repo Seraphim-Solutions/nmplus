@@ -130,7 +130,7 @@ def get_terminal_width() -> int:
 
 def print_logo() -> None:
     width = get_terminal_width()
-    height = 8
+    height = 9
     logo = """
        8888
  888888888888888888888      888
