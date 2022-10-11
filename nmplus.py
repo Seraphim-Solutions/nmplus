@@ -3,28 +3,34 @@ from rich.console import Console
 from rich.table import Table
 from rich import box
 from rich.prompt import Prompt
+from rich.text import Text
 
+import math
+from os import get_terminal_size
 import subprocess
 import re
+from platform import system
 
 console = Console()
 main_color = "bold blue"
 
 
 def main():
-    console.print("Network Manager+ CLI", style=main_color)
-    console.print("Version 0.1", style=main_color)
-    console.print("Author: DanniSec", style=main_color)
+    console.print("Network Manager+ CLI", style=main_color, justify="center")
+    console.print("Version 0.1", style=main_color, justify="center")
+    console.print("Author: DanniSec", style=main_color, justify="center")
 
     while True:
-        console.print("Main Menu", style=main_color)
-        console.print("1. List all connections")
-        console.print("2. List all devices")
-        console.print("3. List all access points")
-        console.print("4. List all wireless networks")
-        console.print("5. Connect to a network")
-        console.print("6. Disconnect from a network")
-        console.print("7. Exit")
+        banner("Main Menu", main_color, console)
+        console.print("""
+1. List all connections
+2. List all devices
+3. List all access points
+4. List all wireless networks
+5. Connect to a network
+6. Disconnect from a network
+7. Exit
+""", justify="center")
         console.print("", style=main_color)
 
         choice = Prompt.ask("Please choose an option", choices=["1", "2", "3", "4", "5", "6", "7"])
@@ -47,7 +53,7 @@ def main():
 
 def list_connections():
     console.print("List of connections", style=main_color)
-    table = Table(show_header=True, header_style=main_color, box=box.SQUARE)
+    table = Table(show_header=True, header_style=main_color, box=box.MINIMAL)
     table.add_column("Name", style=main_color)
     table.add_column("UUID", style=main_color)
     table.add_column("Type", style=main_color)
@@ -58,49 +64,81 @@ def list_connections():
         name, uuid, _type, device = line.split(":")
         table.add_row(name, uuid, _type, device)
 
-    console.print(table)
+    console.print(table, justify="center")
 
 
 def list_devices():
-    console.print("List of devices", style=main_color)
-    table = Table(show_header=True, header_style=main_color, box=box.SQUARE)
+    banner("List of devices", main_color, console)
+    table = Table(show_header=True, header_style=main_color, box=box.MINIMAL)
     table.add_column("Name", style=main_color)
     table.add_column("Type", style=main_color)
     table.add_column("State", style=main_color)
     table.add_column("Driver", style=main_color)
     table.add_column("HW Address", style=main_color)
 
-    output = subprocess.run(["nmcli", "-t", "-f", "name,type,state,driver,hwaddr", "device", "show"], capture_output=True, text=True)
-    for line in output.stdout.splitlines():
-        name, _type, state, driver, hwaddr = line.split(":")
+    output = subprocess.run(["nmcli", "-g", "GENERAL.DEVICE,GENERAL.TYPE,GENERAL.STATUS,GENERAL.DRIVER,GENERAL.HWADDR", "device", "show"], capture_output=True, text=True)
+    
+    y, x = 0, 6
+    lines = output.stdout.splitlines()
+    length = len(lines) / 6
+    for _device in range(math.ceil(length)):
+        name = lines[y]
+        _type = lines[y + 1]
+        state = lines[y + 2]
+        driver = lines[y + 3]
+        hwaddr = lines[y + 4]
         table.add_row(name, _type, state, driver, hwaddr)
+        y += x
+        x *= x 
 
-    console.print(table)
+    console.print(table, justify="center")
 
 
 def list_access_points():
+    banner("List of access points", main_color, console)
     output = subprocess.run(["nmcli", "device", "wifi", "list"], capture_output=True, text=True)
-    console.print(output.stdout)
+    console.print(output.stdout, justify="center")
 
 
 def list_wireless_networks():
+    banner("List of wireless networks", main_color, console)
     output = subprocess.run(["nmcli", "device", "wifi", "list"], capture_output=True, text=True)
-    console.print(output.stdout)
+    console.print(output.stdout, justify="center")
 
 
 def connect_to_network():
-    console.print("Connect to a network", style=main_color)
+    banner("Connect to a network", main_color, console)
     ssid = Prompt.ask("Please enter the SSID of the network you want to connect to")
     password = Prompt.ask("Please enter the password for the network", password=True)
     output = subprocess.run(["nmcli", "device", "wifi", "connect", ssid, "password", password], capture_output=True, text=True)
-    console.print(output.stdout)
+    console.print(output.stdout, justify="center")
 
 
 def disconnect_from_network():
-    console.print("Disconnect from a network", style=main_color)
+    banner("Disconnect from a network", main_color, console)
     ssid = Prompt.ask("Please enter the SSID of the network you want to disconnect from")
     output = subprocess.run(["nmcli", "device", "wifi", "disconnect", ssid], capture_output=True, text=True)
-    console.print(output.stdout)
+    console.print(output.stdout, justify="center")
+
+def banner(msg, color, console) -> None:
+    term_width = get_terminal_width()
+
+    console.print("─" * term_width, style=color)
+    console.print(Text(msg), justify="center", style=color)
+    console.print("─" * term_width, style=color)
+
+
+def get_terminal_width() -> int:
+    try:
+        width, _ = get_terminal_size()
+    except OSError:
+        width = 80
+
+    if system().lower() == "windows":
+        width -= 1
+
+    return width
+
 
 if __name__ == "__main__":
     main()
