@@ -30,8 +30,7 @@ def main():
 6. Exit
 """, justify="center")
         console.print("", style=main_color)
-
-        choice = Prompt.ask("Please choose an option", choices=["1", "2", "3", "4", "5", "6"])
+        choice = Prompt.ask("Please choose an option", choices=["1", "2", "3", "3w", "4", "5", "6"])
 
         if choice == "1":
             list_connections()
@@ -39,6 +38,8 @@ def main():
             list_devices()
         elif choice == "3":
             list_access_points()
+        elif choice == "3w":
+            list_access_points_ng()
         elif choice == "4":
             connect_to_network()
         elif choice == "5":
@@ -122,6 +123,51 @@ def list_access_points():
         table.add_row(bssid, ssid, mode, chan, rate, signal, bars, security, style=bars_style)
 
     console.print(table, justify="center")
+
+
+def list_access_points_ng():
+        banner("List of access points")
+        output = subprocess.run(["nmcli", "-t", "-f", "bssid,ssid,mode,chan,rate,signal,bars,security", "device", "wifi", "list"], capture_output=True, text=True)
+
+        table = Table(show_header=True, header_style=main_color, box=box.MINIMAL, leading=1)
+
+        table.add_column("BSSID", style=main_color)
+        table.add_column("SSID", style=main_color)
+        table.add_column("Mode", style=main_color)
+        table.add_column("Channel", style=main_color)
+        table.add_column("Rate", style=main_color)
+        table.add_column("Signal", style=main_color)
+        table.add_column("Bars", style=main_color)
+        table.add_column("Security", style=main_color)
+        
+        bssid_list = []
+        channel_list = []
+        id_num = 0
+        for line in output.stdout.splitlines():
+            id_num += 1
+            line = re.sub(r'\\', '', line)
+            b1, b2, b3, b4, b5, b6, ssid, mode, chan, rate, signal, bars, security = line.split(":")
+            bssid = f"{b1}:{b2}:{b3}:{b4}:{b5}:{b6}"
+            channel_list.append(chan)
+            bssid_list.append(bssid)
+
+
+            if bars == "▂▄▆█":
+                bars_style = "green"
+            elif bars == "▂▄▆_":
+                bars_style = "yellow"
+            elif bars == "▂▄__":
+                bars_style = "gold3"
+            elif bars == "▂___":
+                bars_style = "red"
+            
+            table.add_row(str(id_num), bssid, ssid, mode, chan, rate, signal, bars, security, style=bars_style)
+
+        console.print(table, justify="center")
+
+        choice = Prompt.ask("Select an access point", choices=[str(i) for i in range(1, id_num + 1)])
+        
+        return bssid_list[int(choice) - 1], channel_list[int(choice) - 1]
 
 
 def connect_to_network():
