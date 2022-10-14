@@ -130,7 +130,8 @@ def list_access_points_ng():
         output = subprocess.run(["nmcli", "-t", "-f", "bssid,ssid,mode,chan,rate,signal,bars,security", "device", "wifi", "list"], capture_output=True, text=True)
 
         table = Table(show_header=True, header_style=main_color, box=box.MINIMAL, leading=1)
-
+        
+        table.add_column("ID", style=main_color)
         table.add_column("BSSID", style=main_color)
         table.add_column("SSID", style=main_color)
         table.add_column("Mode", style=main_color)
