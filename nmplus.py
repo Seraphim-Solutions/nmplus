@@ -198,11 +198,12 @@ def disconnect_from_network():
 
 
 def capture_handshake(device, bssid, channel):
-    subprocess.run(["sudo", "airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", device], capture_output=True)
+    scan = subprocess.Popen(["sudo", "airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", device])
     console.print("Waiting for handshake to be captured", justify="center")
     while not path.exists("handshake.pcap"):    
         sleep(1)
 
+    scan.kill()
     console.print("[+] Handshake captured", justify="center", style="green")
     crack_handshake = Prompt.ask("Do you want to crack the handshake?", choices=["Y", "N"])
     if crack_handshake == "Y":
