@@ -27,10 +27,11 @@ def main():
 3. List all access points
 4. Connect to a network
 5. Disconnect from a network
+w  Weaponized mode
 6. Exit
 """, justify="center")
         console.print("", style=main_color)
-        choice = Prompt.ask("Please choose an option", choices=["1", "2", "3", "3w", "4", "5", "6"])
+        choice = Prompt.ask("Please choose an option", choices=["1", "2", "3", "w", "4", "5", "6"])
 
         if choice == "1":
             list_connections()
@@ -38,7 +39,7 @@ def main():
             list_devices()
         elif choice == "3":
             list_access_points()
-        elif choice == "3w":
+        elif choice == "w":
             list_access_points_ng()
         elif choice == "4":
             connect_to_network()
