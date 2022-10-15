@@ -126,7 +126,7 @@ def list_access_points():
 
 
 def list_access_points_ng():
-    banner("[!] Weaponized [!]")
+    banner("[!] Weaponized [!]", "red")
     list_devices()
     device = Prompt.ask("Please enter the device you want to use")
     banner("List of access points")
