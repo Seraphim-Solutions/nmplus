@@ -31,7 +31,7 @@ w  Weaponized mode
 6. Exit
 """, justify="center")
         console.print("", style=main_color)
-        choice = Prompt.ask("Please choose an option", choices=["1", "2", "3", "w", "4", "5", "6"])
+        choice = Prompt.ask("Please choose an option", choices=["1", "2", "3", "4", "5", "w", "6"])
 
         if choice == "1":
             list_connections()
