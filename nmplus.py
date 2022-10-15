@@ -22,13 +22,13 @@ def main():
     while True:
         banner("Main Menu")
         console.print("""
-1. List all connections
-2. List all devices
-3. List all access points
-4. Connect to a network
-5. Disconnect from a network
-w  Weaponized mode
-6. Exit
+1 - List all connections
+2 - List all devices
+3 - List all access points
+4 - Connect to a network
+5 - Disconnect from a network
+w - Weaponized mode
+6 - Exit
 """, justify="center")
         console.print("", style=main_color)
         choice = Prompt.ask("Please choose an option", choices=["1", "2", "3", "4", "5", "w", "6"])
