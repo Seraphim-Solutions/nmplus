@@ -198,7 +198,7 @@ def disconnect_from_network():
 
 
 def capture_handshake(device, bssid, channel):
-    subprocess.Popen(["sudo", "airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", device])
+    subprocess.Popen(["sudo", "airodump-ng", "-c", channel, "--bssid", bssid, "-w", "handshake", device], capture_output=True)
     console.print("Waiting for handshake to be captured", justify="center")
     while not path.exists("handshake.pcap"):    
         sleep(1)
